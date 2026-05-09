@@ -1,0 +1,22 @@
+{
+  "buttons": [
+    {
+      "icon": "~/.config/niripwmenu/shutdown.png",
+      "id": "buttonPowerOff",
+      "hint": "Power Off",
+      "command": "poweroff"
+    },
+    {
+      "icon": "~/.config/niripwmenu/reboot.png",
+      "id": "buttonRestart",
+      "hint": "Restart",
+      "command": "reboot"
+    },
+    {
+      "icon": "~/.config/niripwmenu/logoff.png",
+      "id": "buttonLogout",
+      "hint": "Log Off",
+      "command": "niri msg action quit -s"
+    }
+  ]
+}
