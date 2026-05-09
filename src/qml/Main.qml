@@ -49,9 +49,9 @@ Window {
     readonly property var cfg: {
         // inline defaults — overridden after config loads
         "buttons": [
-            {"icon": "shutdown.png",  "id": "b0", "hint": "Power Off", "command": "poweroff"},
-            {"icon": "reboot.png",    "id": "b1", "hint": "Restart",   "command": "reboot"},
-            {"icon": "logoff.png",   "id": "b2", "hint": "Log Off",   "command": "niri msg action quit -s"}
+            {"icon": "qrc:///data/shutdown.png", "id": "b0", "hint": "Power Off", "command": "poweroff"},
+            {"icon": "qrc:///data/reboot.png",   "id": "b1", "hint": "Restart",   "command": "reboot"},
+            {"icon": "qrc:///data/logoff.png",   "id": "b2", "hint": "Log Off",   "command": "niri msg action quit -s"}
         ]
     }
 
