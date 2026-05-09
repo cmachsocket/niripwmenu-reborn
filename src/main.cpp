@@ -1,46 +1,42 @@
 #include <QCoreApplication>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
-#include <QQmlContext>
-#include <QScreen>
 #include <QWindow>
-#include <QStandardPaths>
-#include <QProcessEnvironment>
+#include <QScreen>
 #include <cstdlib>
+
 #include "system.h"
+#include "configmanager.h"
 
 int main(int argc, char* argv[])
 {
-
+    qputenv("QML_XHR_ALLOW_FILE_READ", QByteArray("1"));
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QGuiApplication app(argc, argv);
-    app.setApplicationName("niripwmenu-reborn");
-    app.setOrganizationName("cmach_socket");
-    QString configDir = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation);
-    System system;
+    app.setApplicationName("niripwmenu");
 
-    QQmlApplicationEngine engine;
-    engine.rootContext()->setContextProperty("System", &system);
-    engine.rootContext()->setContextProperty("appConfigDir", configDir);
-
-    const QUrl url(QStringLiteral("qrc:///src/qml/Main.qml"));
-
-    QObject::connect(
-        &engine, &QQmlApplicationEngine::objectCreated,
-        &app, [](QObject* obj, const QUrl&) {
-            if (!obj)
-                QCoreApplication::exit(1);
-        },
-        Qt::QueuedConnection
+    // System singleton — exec(cmd) to run shell commands
+    qmlRegisterSingletonType<System>(
+        "niripwmenu", 1, 0, "System",
+        [](QQmlEngine*, QJSEngine*) -> QObject* { return new System(); }
     );
 
-    engine.load(url);
+    // ConfigManager singleton — config init, read, write
+    qmlRegisterSingletonType<ConfigManager>(
+        "niripwmenu", 1, 0, "ConfigManager",
+        [](QQmlEngine*, QJSEngine*) -> QObject* { return new ConfigManager(); }
+    );
+
+    QQmlApplicationEngine engine;
+    engine.load(QUrl(QStringLiteral("qrc:///src/qml/Main.qml")));
+
     QWindow* win = qobject_cast<QWindow*>(engine.rootObjects().first());
     if (win) {
-        QScreen* screen = app.primaryScreen();
-        if (screen) {
-            QRect geo = screen->geometry();
-            win->setX((geo.width()  - win->width())  / 2);
-            win->setY((geo.height() - win->height()) / 2);
+        QScreen* sc = app.primaryScreen();
+        if (sc) {
+            QRect r = sc->geometry();
+            win->setX((r.width() - win->width()) / 2);
+            win->setY((r.height() - win->height()) / 2);
         }
         win->requestActivate();
     }
