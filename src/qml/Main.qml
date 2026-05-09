@@ -2,13 +2,14 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Window
+import QtCore
 
 Window {
     id: root
     visible: true
     title: "niripwmenu"
     color: "transparent"
-
+    
     // ── Overlay flags ──────────────────────────────────────────
     flags: Qt.WindowStaysOnTopHint
          | Qt.FramelessWindowHint
@@ -31,7 +32,6 @@ Window {
         border.color: "#3a3a5c"
         border.width: 1
 
-        // subtle glow
         Rectangle {
             anchors.centerIn: parent
             width: parent.width - 4
@@ -53,28 +53,13 @@ Window {
         ]
     }
 
-    // Load config.json from qrc
-    Component.onCompleted: loadConfig()
-
-    function loadConfig() {
-        var xhr = new XMLHttpRequest()
-        xhr.open("GET", "qrc:///data/config.json")
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
-                var parsed = JSON.parse(xhr.responseText)
-                if (parsed.buttons && parsed.buttons.length > 0) {
-                    buttons = parsed.buttons
-                }
-            }
-        }
-        xhr.send()
-    }
-
     // ── State ───────────────────────────────────────────────────
     property int currentIndex: 0
     property var buttons: cfg.buttons
     property string currentHint: buttons[currentIndex] ? buttons[currentIndex].hint : ""
 
+    property var cfgDir : QtCore.QDir(appConfigDir)
+    property var cfgFile: cfgDir.filePath("config.json")
     // ── Content ──────────────────────────────────────────────────
     ColumnLayout {
         anchors.centerIn: parent
@@ -101,10 +86,9 @@ Window {
                         border.color: index === currentIndex ? "#8888ff" : "#4a4a6a"
                         border.width: index === currentIndex ? 2 : 1
 
-                        Behavior on color     { ColorAnimation { duration: 100 } }
+                        Behavior on color       { ColorAnimation { duration: 100 } }
                         Behavior on border.color { ColorAnimation { duration: 100 } }
 
-                        // Icon
                         Image {
                             anchors.centerIn: parent
                             width: 38
@@ -131,7 +115,6 @@ Window {
             }
         }
 
-        // Hint bar
         Label {
             Layout.alignment: Qt.AlignHCenter
             text: currentHint
@@ -159,7 +142,7 @@ Window {
                 break
             case Qt.Key_Return:
             case Qt.Key_Space:
-                System.exec(buttons[currentIndex].command)
+                System.exec(modelData.command)
                 Qt.quit()
                 event.accepted = true
                 break
@@ -179,14 +162,79 @@ Window {
         width: parent.width
         height: 24
         z: 1
-        drag.target: root
-        drag.axis: Drag.XAndYAxis
+        property real startX: 0
+        property real startY: 0
+
+        onPressed: {
+            startX = mouseX
+            startY = mouseY
+        }
+        onMouseXChanged: {
+            if (pressedButtons & Qt.LeftButton)
+                root.x += mouseX - startX
+        }
+        onMouseYChanged: {
+            if (pressedButtons & Qt.LeftButton)
+                root.y += mouseY - startY
+        }
     }
 
     // ── Startup ────────────────────────────────────────────────
     Component.onCompleted: {
         keyScope.forceActiveFocus()
         root.requestActivate()
-        loadConfig()
+        loadconfig()
+        console.log("Config dir:", appConfigDir)
+    }
+    function configFilesCheck(){
+        if (!cfgDir.exists()) {
+            cfgDir.mkpath(appConfigDir)
+        }
+        if (!QtCore.QFile.exists(cfgFile)) {
+            var qrcFile = QtCore.QFile("qrc:///data/config.json")
+            if (qrcFile.open(QtCore.QIODevice.ReadOnly | QtCore.QIODevice.Text)) {
+                var qrcData = qrcFile.readAll()
+                qrcFile.close()
+                var outFile = QtCore.QFile(cfgFile)
+                if (outFile.open(QtCore.QIODevice.WriteOnly | QtCore.QIODevice.Text)) {
+                    outFile.write(qrcData)
+                    outFile.close()
+                }
+            }
+        }
+         // Copy icons from qrc to local if missing
+        var icons = ["shutdown.png", "reboot.png", "logoff.png"]
+        for (var i = 0; i < icons.length; i++) {
+            var iconPath = cfgDir.filePath(icons[i])
+            if (!QtCore.QFile.exists(iconPath)) {
+                var src = QtCore.QFile("qrc:///data/" + icons[i])
+                if (src.open(QtCore.QIODevice.ReadOnly)) {
+                    var iconData = src.readAll()
+                    src.close()
+                    var dst = QtCore.QFile(iconPath)
+                    if (dst.open(QtCore.QIODevice.WriteOnly)) {
+                        dst.write(iconData)
+                        dst.close()
+                    }
+                }
+            }
+        }
+    }
+    function loadconfig() {
+        configFilesCheck()
+        if (QtCore.QFile.exists(cfgFile)) {
+            // Load local config
+            var file = QtCore.QFile(cfgFile)
+            if (file.open(QtCore.QIODevice.ReadOnly | QtCore.QIODevice.Text)) {
+                var data = file.readAll()
+                var parsed = JSON.parse(data)
+                if (parsed.buttons && parsed.buttons.length > 0) {
+                    buttons = parsed.buttons
+                }
+                file.close()
+            } else {
+                console.error("Failed to open config file:", cfgFile)
+            }
+        }
     }
 }

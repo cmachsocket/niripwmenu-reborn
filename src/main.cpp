@@ -4,20 +4,23 @@
 #include <QQmlContext>
 #include <QScreen>
 #include <QWindow>
-
+#include <QStandardPaths>
+#include <QProcessEnvironment>
+#include <cstdlib>
 #include "system.h"
 
 int main(int argc, char* argv[])
 {
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
     QGuiApplication app(argc, argv);
-    app.setApplicationName("niripwmenu");
-
+    app.setApplicationName("niripwmenu-reborn");
+    app.setOrganizationName("cmach_socket");
+    QString configDir = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation);
     System system;
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("System", &system);
+    engine.rootContext()->setContextProperty("appConfigDir", configDir);
 
     const QUrl url(QStringLiteral("qrc:///src/qml/Main.qml"));
 
@@ -31,7 +34,6 @@ int main(int argc, char* argv[])
     );
 
     engine.load(url);
-
     QWindow* win = qobject_cast<QWindow*>(engine.rootObjects().first());
     if (win) {
         QScreen* screen = app.primaryScreen();
