@@ -2,9 +2,10 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Window
+import Qt.labs.StyleKit
 import niripwmenu 1.0
 
-Window {
+ApplicationWindow {
     id: root
     visible: true
     title: "niripwmenu"
@@ -13,12 +14,16 @@ Window {
     flags: Qt.WindowStaysOnTopHint | Qt.FramelessWindowHint | Qt.Tool
     modality: Qt.NonModal
 
+    Style {
+        id: myStyle
+    }
+    StyleKit.style: myStyle
     width: 380
     height: 200
     minimumWidth: 380; maximumWidth: 380
     minimumHeight: 200; maximumHeight: 200
 
-    //── Default buttons (qrc paths) ───────────────────────────────
+    //── Default buttons ─────────────────────────────────────────
     readonly property var defaultButtons: [
         {"icon": "qrc:///data/shutdown.png", "id": "b0", "hint": "Power Off", "command": "poweroff"},
         {"icon": "qrc:///data/reboot.png",   "id": "b1", "hint": "Restart",   "command": "reboot"},
@@ -31,8 +36,7 @@ Window {
     property string currentHint: buttons[currentIndex] ? buttons[currentIndex].hint : ""
 
     // ── Background ───────────────────────────────────────────────
-    Rectangle {
-        anchors.fill: parent
+    background: Rectangle {
         color: "#1a1a2e"
         radius: 16
         border.color: "#3a3a5c"
@@ -82,7 +86,6 @@ Window {
                             onEntered: currentIndex = index
                             onClicked: {
                                 currentIndex = index
-                                console.log("Executing command:", modelData.command)
                                 ConfigManager.exec(modelData.command)
                                 Qt.quit()
                             }
@@ -100,28 +103,7 @@ Window {
         }
     }
 
-    // ── Keyboard ────────────────────────────────────────────────
-    Item {
-        id: keyScope
-        anchors.fill: parent
-        focus: true
-        Keys.onPressed: function(event) {
-            switch (event.key) {
-            case Qt.Key_Right:
-                currentIndex = (currentIndex + 1) % buttons.length; break
-            case Qt.Key_Left:
-                currentIndex = (currentIndex - 1 + buttons.length) % buttons.length; break
-            case Qt.Key_Return: case Qt.Key_Space:
-                ConfigManager.exec(buttons[currentIndex].command)
-                Qt.quit(); break
-            case Qt.Key_Escape: case Qt.Key_Q:
-                Qt.quit(); break
-            }
-            event.accepted = true
-        }
-    }
-
-    // ── Drag ────────────────────────────────────────────────────
+    // ── Drag area ────────────────────────────────────────────────
     MouseArea {
         anchors.top: parent.top
         anchors.left: parent.left
@@ -129,15 +111,13 @@ Window {
         height: 24
         z: 1
         property real sx: 0
-        property real sy: 0
-        onPressed: { sx = mouseX; sy = mouseY }
+        onPressed: { sx = mouseX }
         onMouseXChanged: if (pressedButtons & Qt.LeftButton) root.x += mouseX - sx
-        onMouseYChanged: if (pressedButtons & Qt.LeftButton) root.y += mouseY - sy
     }
 
     // ── Startup ──────────────────────────────────────────────────
     Component.onCompleted: {
-        keyScope.forceActiveFocus()
+        StyleKit.style.themeName = "light"
         root.requestActivate()
         ConfigManager.ensureConfig()
         var raw = ConfigManager.loadConfig()

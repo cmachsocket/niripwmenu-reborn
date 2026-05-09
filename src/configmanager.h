@@ -14,7 +14,7 @@ public:
     Q_INVOKABLE void ensureConfig() const;
     Q_INVOKABLE QString loadConfig() const;   // returns JSON string
     Q_INVOKABLE void writeConfig(const QString& json) const;
-    Q_INVOKABLE static void exec(const QString& cmd);
+    Q_INVOKABLE void exec(const QString& cmd);
 
 private:
     static QString defaultConfigJson();

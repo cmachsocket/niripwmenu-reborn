@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Qml Quick)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Qml)
 
 add_executable(niripwmenu
     src/main.cpp
@@ -15,6 +15,6 @@ add_executable(niripwmenu
     niripwmenu.qrc
 )
 
-target_link_libraries(niripwmenu PRIVATE Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick)
+target_link_libraries(niripwmenu PRIVATE Qt6::Core Qt6::Gui Qt6::Qml)
 
 install(TARGETS niripwmenu RUNTIME DESTINATION bin)
