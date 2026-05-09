@@ -46,12 +46,28 @@ Window {
 
     // ── Config ──────────────────────────────────────────────────
     readonly property var cfg: {
-        // inline defaults — overridden after config loads
         "buttons": [
             {"icon": "qrc:///data/shutdown.png", "id": "b0", "hint": "Power Off", "command": "poweroff"},
             {"icon": "qrc:///data/reboot.png",   "id": "b1", "hint": "Restart",   "command": "reboot"},
             {"icon": "qrc:///data/logoff.png",   "id": "b2", "hint": "Log Off",   "command": "niri msg action quit -s"}
         ]
+    }
+
+    // Load config.json from qrc
+    Component.onCompleted: loadConfig()
+
+    function loadConfig() {
+        var xhr = new XMLHttpRequest()
+        xhr.open("GET", "qrc:///data/config.json")
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                var parsed = JSON.parse(xhr.responseText)
+                if (parsed.buttons && parsed.buttons.length > 0) {
+                    buttons = parsed.buttons
+                }
+            }
+        }
+        xhr.send()
     }
 
     // ── State ───────────────────────────────────────────────────
