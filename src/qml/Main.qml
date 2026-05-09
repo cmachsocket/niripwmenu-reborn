@@ -18,7 +18,7 @@ Window {
     minimumWidth: 380; maximumWidth: 380
     minimumHeight: 200; maximumHeight: 200
 
-    ── Default buttons (qrc paths) ───────────────────────────────
+    //── Default buttons (qrc paths) ───────────────────────────────
     readonly property var defaultButtons: [
         {"icon": "qrc:///data/shutdown.png", "id": "b0", "hint": "Power Off", "command": "poweroff"},
         {"icon": "qrc:///data/reboot.png",   "id": "b1", "hint": "Restart",   "command": "reboot"},
@@ -82,7 +82,8 @@ Window {
                             onEntered: currentIndex = index
                             onClicked: {
                                 currentIndex = index
-                                System.exec(modelData.command)
+                                console.log("Executing command:", modelData.command)
+                                ConfigManager.exec(modelData.command)
                                 Qt.quit()
                             }
                         }
@@ -111,7 +112,7 @@ Window {
             case Qt.Key_Left:
                 currentIndex = (currentIndex - 1 + buttons.length) % buttons.length; break
             case Qt.Key_Return: case Qt.Key_Space:
-                System.exec(buttons[currentIndex].command)
+                ConfigManager.exec(buttons[currentIndex].command)
                 Qt.quit(); break
             case Qt.Key_Escape: case Qt.Key_Q:
                 Qt.quit(); break
@@ -122,7 +123,10 @@ Window {
 
     // ── Drag ────────────────────────────────────────────────────
     MouseArea {
-        anchors.fill: parent
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: 24
         z: 1
         property real sx: 0
         property real sy: 0

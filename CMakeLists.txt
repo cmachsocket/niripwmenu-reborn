@@ -12,7 +12,6 @@ add_executable(niripwmenu
     src/main.cpp
     src/configmanager.cpp
     src/configmanager.h
-    src/system.h
     niripwmenu.qrc
 )
 

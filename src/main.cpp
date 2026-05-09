@@ -5,7 +5,6 @@
 #include <QScreen>
 #include <cstdlib>
 
-#include "system.h"
 #include "configmanager.h"
 
 int main(int argc, char* argv[])
@@ -15,13 +14,7 @@ int main(int argc, char* argv[])
     QGuiApplication app(argc, argv);
     app.setApplicationName("niripwmenu");
 
-    // System singleton — exec(cmd) to run shell commands
-    qmlRegisterSingletonType<System>(
-        "niripwmenu", 1, 0, "System",
-        [](QQmlEngine*, QJSEngine*) -> QObject* { return new System(); }
-    );
-
-    // ConfigManager singleton — config init, read, write
+    // ConfigManager singleton — config init, read, write, exec
     qmlRegisterSingletonType<ConfigManager>(
         "niripwmenu", 1, 0, "ConfigManager",
         [](QQmlEngine*, QJSEngine*) -> QObject* { return new ConfigManager(); }
