@@ -69,7 +69,7 @@ Window {
             spacing: 28
 
             Repeater {
-                model: buttons.length
+                model: buttons
 
                 delegate: Item {
                     width: 80
@@ -95,7 +95,6 @@ Window {
                             height: 38
                             fillMode: Image.PreserveAspectFit
                             source: modelData.icon || ""
-                            mipmap: true
                         }
 
                         MouseArea {
@@ -107,7 +106,7 @@ Window {
 
                             onClicked: {
                                 currentIndex = index
-                                System.exec(buttons[currentIndex].command)
+                                System.exec(modelData.command)
                                 Qt.quit()
                             }
                         }
