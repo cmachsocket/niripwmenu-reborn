@@ -1,9 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file>src/qml/Main.qml</file>
-        <file>data/config.json</file>
-        <file>data/shutdown.png</file>
-        <file>data/reboot.png</file>
-        <file>data/logoff.png</file>
-    </qresource>
-</RCC>
