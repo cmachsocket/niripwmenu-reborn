@@ -1,6 +1,7 @@
 #include <QCoreApplication>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <QQmlContext>
 #include <QScreen>
 #include <QWindow>
 
@@ -13,18 +14,16 @@ int main(int argc, char* argv[])
     QGuiApplication app(argc, argv);
     app.setApplicationName("niripwmenu");
 
-    // Register System singleton for QML
-    qmlRegisterSingletonType<System>(
-        "niripwmenu", 1, 0, "System",
-        [](QQmlEngine*, QJSEngine*) -> QObject* { return new System(); }
-    );
+    System system;
 
     QQmlApplicationEngine engine;
+    engine.rootContext()->setContextProperty("System", &system);
+
     const QUrl url(QStringLiteral("qrc:///src/qml/Main.qml"));
 
     QObject::connect(
         &engine, &QQmlApplicationEngine::objectCreated,
-        &app, [&app](QObject* obj, const QUrl&) {
+        &app, [](QObject* obj, const QUrl&) {
             if (!obj)
                 QCoreApplication::exit(1);
         },
