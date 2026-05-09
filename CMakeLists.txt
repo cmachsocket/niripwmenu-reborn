@@ -9,11 +9,23 @@ set(CMAKE_AUTOUIC ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Core Gui Qml Quick)
 
+set(QML_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/qml")
+set(DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/data")
+
+qt_add_resources(niripwmenu "niripwmenu"
+    PREFIX "/"
+    FILES
+        "${QML_DIR}/Main.qml"
+        "${DATA_DIR}/config.json"
+        "${DATA_DIR}/shutdown.png"
+        "${DATA_DIR}/reboot.png"
+        "${DATA_DIR}/logoff.png"
+)
+
 add_executable(niripwmenu
     src/main.cpp
     src/system.cpp
     src/system.h
-    niripwmenu.qrc
 )
 
 target_link_libraries(niripwmenu PRIVATE
