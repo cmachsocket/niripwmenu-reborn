@@ -179,21 +179,14 @@ Window {
         width: parent.width
         height: 24
         z: 1
-        property point startPos: "0,0"
-
-        onPressed: startPos = Qt.point(mouseX, mouseY)
-        onMouseXChanged: {
-            if (pressedButtons & Qt.LeftButton)
-                root.x += mouseX - startPos.x
-        }
-        onMouseYChanged: {
-            if (pressedButtons & Qt.LeftButton)
-                root.y += mouseY - startPos.y
-        }
+        drag.target: root
+        drag.axis: Drag.XAndYAxis
     }
 
+    // ── Startup ────────────────────────────────────────────────
     Component.onCompleted: {
         keyScope.forceActiveFocus()
         root.requestActivate()
+        loadConfig()
     }
 }
