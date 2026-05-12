@@ -20,8 +20,6 @@ ApplicationWindow {
     minimumHeight: 200; maximumHeight: 200
 
     // ── Theme colors ─────────────────────────────────────────────
-    // These affect our custom drawn UI elements (rectangles, text, borders).
-    // StyleKit controls read from the Theme object, not from here.
     property color winBg: "#f0f0f0"
     property color txt:   "#333333"
     property color border: "#4a4a6a"
@@ -38,22 +36,15 @@ ApplicationWindow {
         }
     }
 
-    // ── StyleKit — MUST set StyleKit.style to a Style instance ────
-    // Built-in default style (used when user has no MyStyle.qml)
-    Style {
-        id: defaultStyle
-        control { padding: 6 }
-    }
+    // ── StyleKit — set in onCompleted after theme is loaded ────────
 
-    // Set the active style. If user has MyStyle.qml in config dir,
-    // it will replace this after loading.
-    StyleKit.style: defaultStyle
-
-    // ── Focus item for key handling ──────────────────────────────
+    // ── Focus item for key handling (child takes focus, not window) ──
     Item {
         id: focusItem
         focus: true
-        Keys.onPressed: {
+
+        // Tab → toggle light/dark theme, persist to config.json
+        Keys.onPressed: (event) => {
             if (event.key === Qt.Key_Tab) {
                 event.accepted = true
                 var next = (root.winBg === "#f0f0f0") ? "dark" : "light"
@@ -61,30 +52,32 @@ ApplicationWindow {
                 ConfigManager.setTheme(next)
             }
         }
-        Keys.onEscapePressed: Qt.quit()
+        Keys.onEscapePressed: (event) => { Qt.quit() }
     }
 
     // ── Startup ──────────────────────────────────────────────────
     Component.onCompleted: {
         root.requestActivate()
+
+        // Set default StyleKit style
+        StyleKit.style = defaultStyle
+
         ConfigManager.ensureConfig()
         applyTheme(ConfigManager.getTheme())
 
-        // Try loading user's MyStyle.qml from config dir
+        // Load user's MyStyle.qml from config dir if present
         var stylePath = ConfigManager.styleFile()
         var comp = Qt.createComponent(stylePath)
         if (comp && comp.status === Component.Ready) {
             var obj = comp.createObject(root)
             if (obj && obj.rootStyle) {
-                StyleKit.style = obj.rootStyle
-                // Apply the current theme from config
-                if (ConfigManager.getTheme() === "dark")
-                    StyleKit.style = obj.rootStyle.dark || obj.rootStyle
+                var initialTheme = ConfigManager.getTheme()
+                if (initialTheme === "dark" && obj.rootStyle.dark)
+                    StyleKit.style = obj.rootStyle.dark
+                else if (obj.rootStyle.light)
+                    StyleKit.style = obj.rootStyle.light
                 else
-                    StyleKit.style = obj.rootStyle.light || obj.rootStyle
-            } else if (obj && obj.Object) {
-                // MyStyle.qml is a plain Style without 'rootStyle' id
-                StyleKit.style = obj
+                    StyleKit.style = obj.rootStyle
             }
         }
 
@@ -94,6 +87,12 @@ ApplicationWindow {
             if (p.buttons && p.buttons.length > 0)
                 buttons = p.buttons
         }
+    }
+
+    // ── StyleKit default (lazy, set in onCompleted) ────────────────
+    Style {
+        id: defaultStyle
+        control { padding: 6 }
     }
 
     // ── Buttons ───────────────────────────────────────────────────
