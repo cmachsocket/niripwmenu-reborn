@@ -36,32 +36,54 @@ ApplicationWindow {
         }
     }
 
-    // ── StyleKit — set in onCompleted after theme is loaded ────────
+    // ── StyleKit default (set in onCompleted) ────────────────────
+    Style {
+        id: defaultStyle
+        control { padding: 6 }
+    }
 
-    // ── Focus item for key handling (child takes focus, not window) ──
+    // ── Focus item ───────────────────────────────────────────────
     Item {
         id: focusItem
         focus: true
+        activeFocusOnTab: true
 
-        // Tab → toggle light/dark theme, persist to config.json
         Keys.onPressed: (event) => {
+            console.log("QML Keys key=", event.key)
             if (event.key === Qt.Key_Tab) {
                 event.accepted = true
                 var next = (root.winBg === "#f0f0f0") ? "dark" : "light"
                 applyTheme(next)
                 ConfigManager.setTheme(next)
             }
+            if (event.key === Qt.Key_Left) {
+                event.accepted = true
+                currentIndex = (currentIndex - 1 + buttons.length) % buttons.length
+            }
+            if (event.key === Qt.Key_Right) {
+                event.accepted = true
+                currentIndex = (currentIndex + 1) % buttons.length
+            }
         }
         Keys.onEscapePressed: (event) => { Qt.quit() }
+    }
+
+    // ── Listen for C++ key events (Left/Right via lastKey signal) ─
+    Connections {
+        target: ConfigManager
+        function onLastKeyChanged(key) {
+            console.log("DEBUG onLastKeyChanged:", key)
+            if (key === "left")
+                currentIndex = (currentIndex - 1 + buttons.length) % buttons.length
+            if (key === "right")
+                currentIndex = (currentIndex + 1) % buttons.length
+        }
     }
 
     // ── Startup ──────────────────────────────────────────────────
     Component.onCompleted: {
         root.requestActivate()
-
-        // Set default StyleKit style
         StyleKit.style = defaultStyle
-
         ConfigManager.ensureConfig()
         applyTheme(ConfigManager.getTheme())
 
@@ -87,12 +109,6 @@ ApplicationWindow {
             if (p.buttons && p.buttons.length > 0)
                 buttons = p.buttons
         }
-    }
-
-    // ── StyleKit default (lazy, set in onCompleted) ────────────────
-    Style {
-        id: defaultStyle
-        control { padding: 6 }
     }
 
     // ── Buttons ───────────────────────────────────────────────────

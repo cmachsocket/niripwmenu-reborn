@@ -138,3 +138,14 @@ void ConfigManager::exec(const QString& cmd)
 {
     QProcess::startDetached("/bin/sh", QStringList() << "-c" << cmd);
 }
+
+void ConfigManager::setLastKey(const QString& key)
+{
+    m_lastKey = key;
+    emit lastKeyChanged(key);
+}
+
+QString ConfigManager::lastKey() const
+{
+    return m_lastKey;
+}

@@ -9,29 +9,30 @@
 
 #include "configmanager.h"
 
-class KeyFilter : public QObject {
+class GlobalKeyFilter : public QObject {
 public:
-    explicit KeyFilter(ConfigManager* cm, QObject* parent = nullptr)
-        : QObject(parent), m_cm(cm), m_dark(false) {}
+    explicit GlobalKeyFilter(ConfigManager* cm, QObject* parent = nullptr)
+        : QObject(parent), m_cm(cm) {}
 
     bool eventFilter(QObject* watched, QEvent* event) override {
         if (event->type() == QEvent::KeyPress) {
             QKeyEvent* ke = static_cast<QKeyEvent*>(event);
-            if (ke->key() == Qt::Key_Tab) {
-                fprintf(stderr, "DEBUG Tab pressed\n");
-                m_dark = !m_dark;
-                m_cm->setTheme(m_dark ? "dark" : "light");
-            } else if (ke->key() == Qt::Key_Escape) {
-                fprintf(stderr, "DEBUG Escape pressed\n");
+            int key = ke->key();
+            // Left/Right: signal to QML via ConfigManager.lastKey
+            if (key == Qt::Key_Left || key == Qt::Key_Right) {
+                QString k = (key == Qt::Key_Left) ? "left" : "right";
+                m_cm->setLastKey(k);
+            }
+            // Escape: quit
+            if (key == Qt::Key_Escape) {
                 QCoreApplication::quit();
             }
         }
-        return QObject::eventFilter(watched, event);
+        return false; // don't consume, let QML handle too
     }
 
 private:
     ConfigManager* m_cm;
-    bool m_dark;
 };
 
 int main(int argc, char* argv[])
@@ -49,6 +50,9 @@ int main(int argc, char* argv[])
     engine.rootContext()->setContextProperty("ConfigManager", &configManager);
     engine.addImportPath(configManager.configDir());
 
+    // Left/Right key events from C++ → QML signal
+    app.installEventFilter(new GlobalKeyFilter(&configManager, &engine));
+
     engine.loadFromModule("niripwmenu", "Main");
 
     if (engine.rootObjects().isEmpty()) {
@@ -58,9 +62,6 @@ int main(int argc, char* argv[])
 
     QWindow* win = qobject_cast<QWindow*>(engine.rootObjects().first());
     if (win) {
-        KeyFilter* keyFilter = new KeyFilter(&configManager, &engine);
-        win->installEventFilter(keyFilter);
-
         QScreen* sc = QGuiApplication::primaryScreen();
         if (sc) {
             QRect r = sc->geometry();
