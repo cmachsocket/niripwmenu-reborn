@@ -1,12 +1,9 @@
 #include <QCoreApplication>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <QQmlContext>
 #include <QWindow>
 #include <QScreen>
-#include <QDirIterator>
-#include <QQmlComponent>
-#include <QQmlContext>
-#include <dlfcn.h>
 #include <cstdio>
 
 #include "configmanager.h"
@@ -19,12 +16,17 @@ int main(int argc, char* argv[])
 
     ConfigManager configManager;
     QQmlApplicationEngine engine;
-    engine.rootContext()->setContextProperty("ConfigManager", &configManager);
 
+    // Add config dir to import paths for user MyStyle.qml
+    engine.rootContext()->setContextProperty("ConfigManager", &configManager);
+    engine.addImportPath(configManager.configDir());
+
+    // loadFromModule is the correct way to load a qml module
     engine.loadFromModule("niripwmenu", "Main");
 
     if (engine.rootObjects().isEmpty()) {
-        fprintf(stderr, "ALL LOADS FAILED\n");
+        // Fallback: try to understand why
+        fprintf(stderr, "loadFromModule failed\n");
         return 1;
     }
 

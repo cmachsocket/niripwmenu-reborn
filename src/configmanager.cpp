@@ -17,6 +17,11 @@ QString ConfigManager::configDir() const
     return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
 }
 
+QString ConfigManager::styleFile() const
+{
+    return QDir(configDir()).filePath("MyStyle.qml");
+}
+
 QString ConfigManager::defaultConfigJson()
 {
     QJsonArray arr;
@@ -40,6 +45,7 @@ QString ConfigManager::defaultConfigJson()
     arr.append(obj2);
     QJsonObject root;
     root.insert("buttons", arr);
+    root.insert("theme", "light");
     QJsonDocument doc(root);
     return QString::fromUtf8(doc.toJson());
 }
@@ -74,6 +80,39 @@ void ConfigManager::ensureConfig()
             }
         }
     }
+}
+
+QString ConfigManager::getTheme() const
+{
+    QString path = QDir(configDir()).filePath("config.json");
+    QFile f(path);
+    if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
+        return "light";
+    QByteArray data = f.readAll();
+    f.close();
+    QJsonDocument doc = QJsonDocument::fromJson(data);
+    if (doc.isNull())
+        return "light";
+    return doc.object().value("theme").toString("light");
+}
+
+void ConfigManager::setTheme(const QString& theme)
+{
+    QString path = QDir(configDir()).filePath("config.json");
+    QFile f(path);
+    if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
+        return;
+    QByteArray data = f.readAll();
+    f.close();
+    QJsonDocument doc = QJsonDocument::fromJson(data);
+    if (doc.isNull())
+        doc = QJsonDocument::fromJson(defaultConfigJson().toUtf8());
+    QJsonObject obj = doc.object();
+    obj.insert("theme", theme);
+    doc.setObject(obj);
+    QFile out(path);
+    if (out.open(QIODevice::WriteOnly | QIODevice::Text))
+        out.write(doc.toJson());
 }
 
 QString ConfigManager::loadConfig() const

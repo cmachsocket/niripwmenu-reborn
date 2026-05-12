@@ -3,8 +3,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Window
 import Qt.labs.StyleKit
-import "."  // Import Style.qml from same module
-import niripwmenu 
+import niripwmenu
 
 ApplicationWindow {
     id: root
@@ -20,22 +19,82 @@ ApplicationWindow {
     minimumWidth: 380; maximumWidth: 380
     minimumHeight: 200; maximumHeight: 200
 
-    MyStyle {
-        id: myStyle
-    }
-    StyleKit.style: myStyle
+    // ── Theme colors ─────────────────────────────────────────────
+    property color winBg: "#f0f0f0"
+    property color txt:   "#333333"
+    property color border: "#4a4a6a"
 
+    function applyTheme(name) {
+        if (name === "dark") {
+            winBg   = "#1a1a2e"
+            txt     = "#6a6a8a"
+            border  = "#4a4a6a"
+        } else {
+            winBg   = "#f0f0f0"
+            txt     = "#333333"
+            border  = "#4a4a6a"
+        }
+    }
+
+    // ── StyleKit — default style ─────────────────────────────────
+    Style {
+        id: defaultStyle
+        control { padding: 6 }
+    }
+
+    // ── Focus item for key handling ──────────────────────────────
+    Item {
+        id: focusItem
+        focus: true
+        Keys.onPressed: {
+            if (event.key === Qt.Key_Tab) {
+                event.accepted = true
+                var next = (root.winBg === "#f0f0f0") ? "dark" : "light"
+                applyTheme(next)
+                ConfigManager.setTheme(next)
+            }
+        }
+        Keys.onEscapePressed: Qt.quit()
+    }
+
+    // ── Startup ──────────────────────────────────────────────────
+    Component.onCompleted: {
+        root.requestActivate()
+        ConfigManager.ensureConfig()
+        applyTheme(ConfigManager.getTheme())
+
+        // Try loading user's MyStyle.qml from config dir
+        var stylePath = ConfigManager.styleFile()
+        var comp = Qt.createComponent(stylePath)
+        if (comp && comp.status === Component.Ready) {
+            var obj = comp.createObject(root)
+            if (obj && obj.rootStyle) {
+                StyleKit.style = obj.rootStyle
+            }
+        }
+
+        var raw = ConfigManager.loadConfig()
+        if (raw.length > 0) {
+            var p = JSON.parse(raw)
+            if (p.buttons && p.buttons.length > 0)
+                buttons = p.buttons
+        }
+    }
+
+    // ── Buttons ───────────────────────────────────────────────────
     property int currentIndex: 0
     property var defaultButtons: [
-        {"icon": "qrc:///data/shutdown.png", "id": "b0", "hint": "Power Off", "command": "poweroff"},
-        {"icon": "qrc:///data/reboot.png",   "id": "b1", "hint": "Restart",   "command": "reboot"},
-        {"icon": "qrc:///data/logoff.png",   "id": "b2", "hint": "Log Off",   "command": "niri msg action quit -s"}
+        { "icon": "qrc:///data/shutdown.png", "id": "b0", "hint": "Power Off", "command": "poweroff" },
+        { "icon": "qrc:///data/reboot.png",   "id": "b1", "hint": "Restart",   "command": "reboot"  },
+        { "icon": "qrc:///data/logoff.png",   "id": "b2", "hint": "Log Off",   "command": "niri msg action quit -s" }
     ]
     property var buttons: defaultButtons
     property string currentHint: buttons[currentIndex] ? buttons[currentIndex].hint : ""
 
-    Frame {
+    // ── UI ───────────────────────────────────────────────────────
+    Rectangle {
         anchors.fill: parent
+        color: root.winBg
     }
 
     ColumnLayout {
@@ -48,27 +107,29 @@ ApplicationWindow {
 
             Repeater {
                 model: buttons
-
                 delegate: Item {
                     width: 80; height: 80
 
                     Button {
-                        id: btn
                         anchors.centerIn: parent
                         width: 64; height: 64
                         focusPolicy: Qt.NoFocus
-
-                        contentItem: Item {
-                            Image {
-                                anchors.centerIn: parent
-                                width: 38; height: 38
-                                fillMode: Image.PreserveAspectFit
-                                source: modelData.icon || ""
-                            }
-                        }
-
                         checked: index === currentIndex
                         onCheckedChanged: if (checked) currentIndex = index
+
+                        background: Rectangle {
+                            color: "transparent"
+                            border.color: root.border
+                            border.width: 1
+                            radius: 4
+                        }
+
+                        contentItem: Image {
+                            anchors.centerIn: parent
+                            width: 38; height: 38
+                            fillMode: Image.PreserveAspectFit
+                            source: modelData.icon || ""
+                        }
 
                         onClicked: {
                             ConfigManager.exec(modelData.command)
@@ -83,10 +144,22 @@ ApplicationWindow {
             Layout.alignment: Qt.AlignHCenter
             text: currentHint
             font.pixelSize: 12
-            color: StyleKit.style ? StyleKit.style.control.text.color : "#333333"
+            color: root.txt
         }
     }
 
+    // Theme indicator (bottom-right)
+    Label {
+        anchors.bottom: parent.bottom
+        anchors.right: parent.right
+        anchors.margins: 6
+        text: root.winBg === "#1a1a2e" ? "☽" : "☀"
+        font.pixelSize: 12
+        color: root.txt
+        opacity: 0.5
+    }
+
+    // Drag window
     MouseArea {
         anchors.top: parent.top
         anchors.left: parent.left
@@ -96,17 +169,5 @@ ApplicationWindow {
         property real sx: 0
         onPressed: { sx = mouseX }
         onMouseXChanged: if (pressedButtons & Qt.LeftButton) root.x += mouseX - sx
-    }
-
-    Component.onCompleted: {
-        StyleKit.style.themeName = "light"
-        root.requestActivate()
-        ConfigManager.ensureConfig()
-        var raw = ConfigManager.loadConfig()
-        if (raw.length > 0) {
-            var parsed = JSON.parse(raw)
-            if (parsed.buttons && parsed.buttons.length > 0)
-                buttons = parsed.buttons
-        }
     }
 }

@@ -45,6 +45,8 @@ target_link_libraries(niripwmenu-bin PRIVATE
     Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick Qt6::QuickControls2
 )
 
+target_compile_definitions(niripwmenu-bin PRIVATE BUILD_DIR="${CMAKE_BINARY_DIR}")
+
 # Also link the QML module shared library into the binary
 target_link_libraries(niripwmenu-bin PRIVATE
     niripwmenu
