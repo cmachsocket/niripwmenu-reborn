@@ -1,0 +1,7 @@
+module niripwmenu
+typeinfo niripwmenu.qmltypes
+prefer :/qt/qml/niripwmenu/
+Main 254.0 src/qml/Main.qml
+Style 254.0 src/qml/Style.qml
+depends QtQuick
+

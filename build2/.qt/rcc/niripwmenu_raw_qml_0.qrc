@@ -1,0 +1,7 @@
+<RCC>
+  <qresource prefix="/qt/qml/niripwmenu/">
+    <file alias="src/qml/Main.qml">/home/cmach_socket/projects/niripwmenu-reborn/src/qml/Main.qml</file>
+    <file alias="src/qml/Style.qml">/home/cmach_socket/projects/niripwmenu-reborn/src/qml/Style.qml</file>
+  </qresource>
+</RCC>
+

@@ -1,0 +1,16 @@
+-rootPath
+/home/cmach_socket/projects/niripwmenu-reborn
+-cmake-output
+-output-file
+/home/cmach_socket/projects/niripwmenu-reborn/build2/.qt/qml_imports/niripwmenu_build.cmake
+-importPath
+/home/cmach_socket/projects/niripwmenu-reborn/build2
+-importPath
+/home/cmach_socket/projects/niripwmenu-reborn/build2/niripwmenu
+-importPath
+/usr/lib/qt6/qml
+-qrcFiles
+/home/cmach_socket/projects/niripwmenu-reborn/build2/.qt/rcc/qmake_niripwmenu.qrc
+/home/cmach_socket/projects/niripwmenu-reborn/build2/.qt/rcc/niripwmenu_raw_qml_0.qrc
+/home/cmach_socket/projects/niripwmenu-reborn/build2/.qt/rcc/niripwmenu_raw_qml_0_extra_qmldirs.qrc
+/home/cmach_socket/projects/niripwmenu-reborn/build2/.qt/rcc/data.qrc

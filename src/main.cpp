@@ -3,34 +3,39 @@
 #include <QQmlApplicationEngine>
 #include <QWindow>
 #include <QScreen>
-#include <cstdlib>
+#include <QDirIterator>
+#include <QQmlComponent>
+#include <QQmlContext>
+#include <dlfcn.h>
+#include <cstdio>
 
 #include "configmanager.h"
+
+typedef void (*InitFn)();
 
 int main(int argc, char* argv[])
 {
     qputenv("QML_XHR_ALLOW_FILE_READ", QByteArray("1"));
     QGuiApplication app(argc, argv);
     app.setApplicationName("niripwmenu");
-
     QQmlApplicationEngine engine;
-    engine.addImportPath("qrc:///src/qml");
+    engine.loadFromModule("niripwmenu", "Main");
 
-    // ConfigManager singleton — config init, read, write, exec
-    qmlRegisterSingletonType<ConfigManager>(
-        "niripwmenu", 1, 0, "ConfigManager",
-        [](QQmlEngine*, QJSEngine*) -> QObject* { return new ConfigManager(); }
-    );
-
-    engine.load(QUrl(QStringLiteral("qrc:///src/qml/Main.qml")));
+    if (engine.rootObjects().isEmpty()) {
+        fprintf(stderr, "ALL LOADS FAILED\n");
+        return 1;
+    }
 
     QWindow* win = qobject_cast<QWindow*>(engine.rootObjects().first());
     if (win) {
-        QScreen* sc = app.primaryScreen();
+        QScreen* sc = QGuiApplication::primaryScreen();
         if (sc) {
             QRect r = sc->geometry();
             win->setX((r.width() - win->width()) / 2);
             win->setY((r.height() - win->height()) / 2);
+        } else {
+            win->setX(100);
+            win->setY(100);
         }
         win->requestActivate();
     }

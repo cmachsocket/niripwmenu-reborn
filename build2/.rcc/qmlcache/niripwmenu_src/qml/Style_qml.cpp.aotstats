@@ -1,0 +1,39 @@
+{
+    "formatRevision": 1,
+    "modules": [
+        {
+            "moduleFiles": [
+                {
+                    "entries": [
+                        {
+                            "codegenResult": 2,
+                            "column": 31,
+                            "durationMicroseconds": 0,
+                            "functionName": "color",
+                            "line": 56,
+                            "message": "Could not find property \"color\"."
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 39,
+                            "durationMicroseconds": 0,
+                            "functionName": "color",
+                            "line": 87,
+                            "message": "Cannot generate efficient code for internal conversion with incompatible or ambiguous types: call to method alpha, returning QVariant -> QColor stored as QVariant"
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 39,
+                            "durationMicroseconds": 0,
+                            "functionName": "color",
+                            "line": 117,
+                            "message": "Cannot generate efficient code for internal conversion with incompatible or ambiguous types: call to method alpha, returning QVariant -> QColor stored as QVariant"
+                        }
+                    ],
+                    "filePath": "/home/cmach_socket/projects/niripwmenu-reborn/src/qml/Style.qml"
+                }
+            ],
+            "moduleId": "niripwmenu(niripwmenu)"
+        }
+    ]
+}
