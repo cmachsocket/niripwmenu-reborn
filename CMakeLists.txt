@@ -22,15 +22,16 @@ qt_add_executable(niripwmenu-bin
     src/configmanager.h
 )
 
-# QML module as STATIC library (its objects embed into niripwmenu-bin at link time)
+# QML module — SHARED forces output of libniripwmenu.so on all platforms
 qt_add_qml_module(niripwmenu
+    SHARED
     URI niripwmenu
     QML_FILES
         src/qml/Main.qml
         src/qml/Style.qml
 )
 
-# Data files (add resources directly to the executable target)
+# Data files
 qt_add_resources(niripwmenu-bin "data_qrc"
     PREFIX "/data"
     FILES
@@ -40,26 +41,16 @@ qt_add_resources(niripwmenu-bin "data_qrc"
         data/logoff.png
 )
 
-# Bundle qmldir into executable
-qt_add_resources(niripwmenu-bin "qmldir_bundle"
-    PREFIX "/qt/qml/niripwmenu/"
-    FILES
-        ${CMAKE_CURRENT_BINARY_DIR}/qmldir
-)
-
 target_link_libraries(niripwmenu-bin PRIVATE
     Qt6::Core Qt6::Gui Qt6::Qml Qt6::Quick Qt6::QuickControls2
 )
 
-# Force-include ALL objects from the static niripwmenu library
-# --whole-archive is needed because linker discarding "unused" archive members
-target_link_options(niripwmenu-bin PRIVATE
-    -Wl,--whole-archive
-    $<TARGET_FILE:niripwmenu>
-    -Wl,--no-whole-archive
+# Also link the QML module shared library into the binary
+target_link_libraries(niripwmenu-bin PRIVATE
+    niripwmenu
 )
 
-install(TARGETS niripwmenu-bin
+install(TARGETS niripwmenu-bin niripwmenu
     BUNDLE  DESTINATION .
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
