@@ -1,8 +1,8 @@
 import QtQuick
 import Qt.labs.StyleKit
 
-MyStyle {
-    id: root
+Style {
+    id: style
 
     control {
         padding: 6

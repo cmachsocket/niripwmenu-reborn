@@ -1,2 +1,0 @@
-set(__QT_DEPLOY_TARGET_niripwmenu_FILE /home/cmach_socket/projects/niripwmenu-reborn/build2/niripwmenu)
-set(__QT_DEPLOY_TARGET_niripwmenu_TYPE EXECUTABLE)

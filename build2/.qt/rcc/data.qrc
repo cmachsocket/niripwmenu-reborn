@@ -1,9 +1,0 @@
-<RCC>
-  <qresource prefix="/">
-    <file alias="data/config.json">/home/cmach_socket/projects/niripwmenu-reborn/data/config.json</file>
-    <file alias="data/shutdown.png">/home/cmach_socket/projects/niripwmenu-reborn/data/shutdown.png</file>
-    <file alias="data/reboot.png">/home/cmach_socket/projects/niripwmenu-reborn/data/reboot.png</file>
-    <file alias="data/logoff.png">/home/cmach_socket/projects/niripwmenu-reborn/data/logoff.png</file>
-  </qresource>
-</RCC>
-

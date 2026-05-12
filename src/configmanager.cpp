@@ -44,7 +44,7 @@ QString ConfigManager::defaultConfigJson()
     return QString::fromUtf8(doc.toJson());
 }
 
-void ConfigManager::ensureConfig() const
+void ConfigManager::ensureConfig()
 {
     QString dir = configDir();
     QDir().mkpath(dir);

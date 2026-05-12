@@ -4,7 +4,7 @@ import QtQuick.Layouts
 import QtQuick.Window
 import Qt.labs.StyleKit
 import "."  // Import Style.qml from same module
-import niripwmenu 1.0
+import niripwmenu 
 
 ApplicationWindow {
     id: root
@@ -99,7 +99,7 @@ ApplicationWindow {
     }
 
     Component.onCompleted: {
-        StyleKit.style.themeName = "dark"
+        StyleKit.style.themeName = "light"
         root.requestActivate()
         ConfigManager.ensureConfig()
         var raw = ConfigManager.loadConfig()

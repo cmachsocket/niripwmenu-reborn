@@ -11,7 +11,7 @@ public:
     explicit ConfigManager(QObject* parent = nullptr);
 
     Q_INVOKABLE QString configDir() const;
-    Q_INVOKABLE void ensureConfig() const;
+    Q_INVOKABLE void ensureConfig();
     Q_INVOKABLE QString loadConfig() const;   // returns JSON string
     Q_INVOKABLE void writeConfig(const QString& json) const;
     Q_INVOKABLE void exec(const QString& cmd);

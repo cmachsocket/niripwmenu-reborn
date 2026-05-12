@@ -28,12 +28,12 @@ qt_add_qml_module(niripwmenu
     URI niripwmenu
     QML_FILES
         src/qml/Main.qml
-        src/qml/Style.qml
+        src/qml/MyStyle.qml
 )
 
 # Data files
 qt_add_resources(niripwmenu-bin "data_qrc"
-    PREFIX "/data"
+    PREFIX "/"
     FILES
         data/config.json
         data/shutdown.png

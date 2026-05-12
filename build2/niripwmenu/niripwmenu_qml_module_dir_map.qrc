@@ -1,6 +1,0 @@
-<RCC>
-  <qresource prefix="/">
-    <file alias="/qt/qml/niripwmenu">/home/cmach_socket/projects/niripwmenu-reborn/build2/niripwmenu</file>
-
-  </qresource>
-</RCC>

@@ -11,14 +11,16 @@
 
 #include "configmanager.h"
 
-typedef void (*InitFn)();
-
 int main(int argc, char* argv[])
 {
     qputenv("QML_XHR_ALLOW_FILE_READ", QByteArray("1"));
     QGuiApplication app(argc, argv);
     app.setApplicationName("niripwmenu");
+
+    ConfigManager configManager;
     QQmlApplicationEngine engine;
+    engine.rootContext()->setContextProperty("ConfigManager", &configManager);
+
     engine.loadFromModule("niripwmenu", "Main");
 
     if (engine.rootObjects().isEmpty()) {
