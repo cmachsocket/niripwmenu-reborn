@@ -4,7 +4,7 @@ import QtQuick.Layouts
 import QtQuick.Window
 import Qt.labs.StyleKit
 import "."  // Import Style.qml from same module
-import niripwmenu_bin 1.0
+import niripwmenu 1.0
 
 ApplicationWindow {
     id: root
