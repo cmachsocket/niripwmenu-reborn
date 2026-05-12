@@ -20,6 +20,8 @@ ApplicationWindow {
     minimumHeight: 200; maximumHeight: 200
 
     // ── Theme colors ─────────────────────────────────────────────
+    // These affect our custom drawn UI elements (rectangles, text, borders).
+    // StyleKit controls read from the Theme object, not from here.
     property color winBg: "#f0f0f0"
     property color txt:   "#333333"
     property color border: "#4a4a6a"
@@ -36,11 +38,16 @@ ApplicationWindow {
         }
     }
 
-    // ── StyleKit — default style ─────────────────────────────────
+    // ── StyleKit — MUST set StyleKit.style to a Style instance ────
+    // Built-in default style (used when user has no MyStyle.qml)
     Style {
         id: defaultStyle
         control { padding: 6 }
     }
+
+    // Set the active style. If user has MyStyle.qml in config dir,
+    // it will replace this after loading.
+    StyleKit.style: defaultStyle
 
     // ── Focus item for key handling ──────────────────────────────
     Item {
@@ -70,6 +77,14 @@ ApplicationWindow {
             var obj = comp.createObject(root)
             if (obj && obj.rootStyle) {
                 StyleKit.style = obj.rootStyle
+                // Apply the current theme from config
+                if (ConfigManager.getTheme() === "dark")
+                    StyleKit.style = obj.rootStyle.dark || obj.rootStyle
+                else
+                    StyleKit.style = obj.rootStyle.light || obj.rootStyle
+            } else if (obj && obj.Object) {
+                // MyStyle.qml is a plain Style without 'rootStyle' id
+                StyleKit.style = obj
             }
         }
 

@@ -1,14 +1,16 @@
 import QtQuick
 import Qt.labs.StyleKit
 
+// User's custom style for niripwmenu
+// Place this file in ~/.local/share/niripwmenu/MyStyle.qml
+// It will be loaded automatically if present
 Style {
-    id: style
+    id: rootStyle
 
     control {
         padding: 6
     }
 
-    // Light theme
     light: Theme {
         applicationWindow {
             background.color: "#f0f0f0"
@@ -30,7 +32,6 @@ Style {
         }
     }
 
-    // Dark theme
     dark: Theme {
         applicationWindow {
             background.color: "#1a1a2e"

@@ -17,16 +17,18 @@ int main(int argc, char* argv[])
     ConfigManager configManager;
     QQmlApplicationEngine engine;
 
-    // Add config dir to import paths for user MyStyle.qml
+    // Debug: show config dir
+    fprintf(stderr, "DEBUG configDir: %s\n", qPrintable(configManager.configDir()));
+    fprintf(stderr, "DEBUG styleFile: %s\n", qPrintable(configManager.styleFile()));
+    fprintf(stderr, "DEBUG getTheme: %s\n", qPrintable(configManager.getTheme()));
+
     engine.rootContext()->setContextProperty("ConfigManager", &configManager);
     engine.addImportPath(configManager.configDir());
 
-    // loadFromModule is the correct way to load a qml module
     engine.loadFromModule("niripwmenu", "Main");
 
     if (engine.rootObjects().isEmpty()) {
-        // Fallback: try to understand why
-        fprintf(stderr, "loadFromModule failed\n");
+        fprintf(stderr, "ALL LOADS FAILED\n");
         return 1;
     }
 
