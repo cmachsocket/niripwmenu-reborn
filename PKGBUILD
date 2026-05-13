@@ -1,9 +1,9 @@
 # Maintainer : cmach_socket <cmach_socket@outlook.com>
 pkgname=niripwmenu-reborn
-pkgver=0.1.4
+pkgver=0.1
 pkgrel=1
 pkgdesc="Power menu widget for niri (Wayland)"
-arch=("x86_64")
+arch=("any")
 url="https://github.com/cmachsocket/niripwmenu-reborn"
 license=("MIT")
 depends=("qt6-base" "qt6-declarative")
