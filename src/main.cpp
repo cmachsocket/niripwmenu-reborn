@@ -1,4 +1,3 @@
-#include <QCoreApplication>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QWindow>
@@ -10,13 +9,12 @@
 int main(int argc, char* argv[])
 {
     qputenv("QML_XHR_ALLOW_FILE_READ", QByteArray("1"));
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QGuiApplication app(argc, argv);
-    app.setApplicationName("niripwmenu");
+    app.setApplicationName("niripwmenu-reborn");
 
     // ConfigManager singleton — config init, read, write, exec
     qmlRegisterSingletonType<ConfigManager>(
-        "niripwmenu", 1, 0, "ConfigManager",
+        "niripwmenu_reborn", 1, 0, "ConfigManager",
         [](QQmlEngine*, QJSEngine*) -> QObject* { return new ConfigManager(); }
     );
 

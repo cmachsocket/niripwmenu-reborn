@@ -16,6 +16,10 @@ public:
     Q_INVOKABLE void writeConfig(const QString& json) const;
     Q_INVOKABLE static void exec(const QString& cmd);
 
+    Q_INVOKABLE QString loadStyle() const;    // returns style JSON string
+    Q_INVOKABLE void saveStyle(const QString& json) const;
+    Q_INVOKABLE QString defaultStyleJson() const;
+
 private:
     static QString defaultConfigJson();
 };

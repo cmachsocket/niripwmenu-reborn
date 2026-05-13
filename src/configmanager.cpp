@@ -70,6 +70,12 @@ void ConfigManager::ensureConfig() const
             f.close();
         }
     }
+    QString styleFile = QDir(dir).filePath("style.json");
+    if (!QFile::exists(styleFile)) {
+        QFile sf(styleFile);
+        if (sf.open(QIODevice::WriteOnly | QIODevice::Text))
+            sf.write(defaultStyleJson().toUtf8());
+    }
     QStringList icons;
     icons.append("shutdown.png");
     icons.append("reboot.png");
@@ -150,4 +156,58 @@ void ConfigManager::writeConfig(const QString& json) const
 void ConfigManager::exec(const QString& cmd)
 {
     QProcess::startDetached("/bin/sh", QStringList() << "-c" << cmd);
+}
+
+QString ConfigManager::defaultStyleJson() const
+{
+    QJsonObject s;
+    s.insert("windowOpacity", 1.0);
+    s.insert("windowBgColor", "#1a1a2e");
+    s.insert("windowBorderColor", "#3a3a5c");
+    s.insert("windowRadius", 16.0);
+    s.insert("buttonBgColor", "transparent");
+    s.insert("buttonBgColorActive", "#2e2e50");
+    s.insert("buttonBorderColor", "#4a4a6a");
+    s.insert("buttonBorderColorActive", "#8888ff");
+    s.insert("buttonBorderWidth", 1);
+    s.insert("buttonBorderWidthActive", 2);
+    s.insert("buttonRadius", 12.0);
+    s.insert("buttonSize", 64);
+    s.insert("iconSize", 38);
+    s.insert("hintColor", "#6a6a8a");
+    s.insert("hintFontSize", 12);
+    s.insert("spacing", 28);
+    return QString::fromUtf8(QJsonDocument(s).toJson());
+}
+
+QString ConfigManager::loadStyle() const
+{
+    QString path = QDir(configDir()).filePath("style.json");
+    QFile f(path);
+    if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
+        return defaultStyleJson();
+    QByteArray data = f.readAll();
+    f.close();
+    QJsonDocument doc = QJsonDocument::fromJson(data);
+    if (doc.isNull())
+        return defaultStyleJson();
+    // Merge with defaults
+    QJsonObject loaded = doc.object();
+    QJsonDocument defDoc = QJsonDocument::fromJson(defaultStyleJson().toUtf8());
+    QJsonObject def = defDoc.object();
+    for (auto it = def.begin(); it != def.end(); ++it) {
+        if (!loaded.contains(it.key()))
+            loaded.insert(it.key(), it.value());
+    }
+    return QString::fromUtf8(QJsonDocument(loaded).toJson());
+}
+
+void ConfigManager::saveStyle(const QString& json) const
+{
+    QString dir = configDir();
+    QDir().mkpath(dir);
+    QString path = QDir(dir).filePath("style.json");
+    QFile f(path);
+    if (f.open(QIODevice::WriteOnly | QIODevice::Text))
+        f.write(json.toUtf8());
 }

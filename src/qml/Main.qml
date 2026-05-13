@@ -2,12 +2,12 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Window
-import niripwmenu 1.0
+import niripwmenu_reborn 1.0
 
 Window {
     id: root
     visible: true
-    title: "niripwmenu"
+    title: "niripwmenu-reborn"
     color: "transparent"
 
     flags: Qt.WindowStaysOnTopHint | Qt.FramelessWindowHint | Qt.Tool
@@ -25,22 +25,46 @@ Window {
         {"icon": "qrc:///data/logoff.png",   "id": "b2", "hint": "Log Off",   "command": "niri msg action quit -s"}
     ]
 
+    // ── Default style ────────────────────────────────────────────
+    readonly property var defaultStyle: ({
+        "windowOpacity": 1.0,
+        "windowBgColor": "#1a1a2e",
+        "windowBorderColor": "#3a3a5c",
+        "windowRadius": 16,
+        "buttonBgColor": "transparent",
+        "buttonBgColorActive": "#2e2e50",
+        "buttonBorderColor": "#4a4a6a",
+        "buttonBorderColorActive": "#8888ff",
+        "buttonBorderWidth": 1,
+        "buttonBorderWidthActive": 2,
+        "buttonRadius": 12,
+        "buttonSize": 64,
+        "iconSize": 38,
+        "hintColor": "#6a6a8a",
+        "hintFontSize": 12,
+        "spacing": 28
+    })
+
     // ── State ───────────────────────────────────────────────────
     property int currentIndex: 0
     property var buttons: defaultButtons
     property string currentHint: buttons[currentIndex] ? buttons[currentIndex].hint : ""
 
+    // ── Style state ─────────────────────────────────────────────
+    property var style: ({})
+
     // ── Background ───────────────────────────────────────────────
     Rectangle {
         anchors.fill: parent
-        color: "#1a1a2e"
-        radius: 16
-        border.color: "#3a3a5c"
+        opacity: style.windowOpacity || defaultStyle.windowOpacity
+        color: style.windowBgColor || defaultStyle.windowBgColor
+        radius: style.windowRadius || defaultStyle.windowRadius
+        border.color: style.windowBorderColor || defaultStyle.windowBorderColor
         border.width: 1
         Rectangle {
             anchors.centerIn: parent
             width: parent.width - 4; height: parent.height - 4
-            radius: 14
+            radius: (style.windowRadius || defaultStyle.windowRadius) - 2
             color: "transparent"
             border.color: "#5a5a8c"
             border.width: 0.5
@@ -55,23 +79,31 @@ Window {
 
         RowLayout {
             Layout.alignment: Qt.AlignHCenter
-            spacing: 28
+            spacing: style.spacing || defaultStyle.spacing
 
             Repeater { model: buttons
                 delegate: Item {
                     width: 80; height: 80
                     Rectangle {
                         anchors.centerIn: parent
-                        width: 64; height: 64
-                        radius: 12
-                        color: index === currentIndex ? "#2e2e50" : "transparent"
-                        border.color: index === currentIndex ? "#8888ff" : "#4a4a6a"
-                        border.width: index === currentIndex ? 2 : 1
+                        width: style.buttonSize || defaultStyle.buttonSize
+                        height: style.buttonSize || defaultStyle.buttonSize
+                        radius: style.buttonRadius || defaultStyle.buttonRadius
+                        color: index === currentIndex
+                            ? (style.buttonBgColorActive || defaultStyle.buttonBgColorActive)
+                            : (style.buttonBgColor || defaultStyle.buttonBgColor)
+                        border.color: index === currentIndex
+                            ? (style.buttonBorderColorActive || defaultStyle.buttonBorderColorActive)
+                            : (style.buttonBorderColor || defaultStyle.buttonBorderColor)
+                        border.width: index === currentIndex
+                            ? (style.buttonBorderWidthActive || defaultStyle.buttonBorderWidthActive)
+                            : (style.buttonBorderWidth || defaultStyle.buttonBorderWidth)
                         Behavior on color       { ColorAnimation { duration: 100 } }
                         Behavior on border.color { ColorAnimation { duration: 100 } }
                         Image {
                             anchors.centerIn: parent
-                            width: 38; height: 38
+                            width: style.iconSize || defaultStyle.iconSize
+                            height: style.iconSize || defaultStyle.iconSize
                             fillMode: Image.PreserveAspectFit
                             source: modelData.icon || ""
                         }
@@ -95,8 +127,8 @@ Window {
         Label {
             Layout.alignment: Qt.AlignHCenter
             text: currentHint
-            color: "#6a6a8a"
-            font.pixelSize: 12
+            color: style.hintColor || defaultStyle.hintColor
+            font.pixelSize: style.hintFontSize || defaultStyle.hintFontSize
         }
     }
 
@@ -145,6 +177,10 @@ Window {
             var parsed = JSON.parse(raw)
             if (parsed.buttons && parsed.buttons.length > 0)
                 buttons = parsed.buttons
+        }
+        var styleRaw = ConfigManager.loadStyle()
+        if (styleRaw.length > 0) {
+            try { style = JSON.parse(styleRaw) } catch(e) {}
         }
     }
 }
