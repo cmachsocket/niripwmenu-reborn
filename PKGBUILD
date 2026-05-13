@@ -1,7 +1,7 @@
-# Maintainer : cmach_socket <cmach_socket@outlook.com>
+# Maintainer: cmach_socket <cmach_socket@outlook.com>
 pkgname=niripwmenu-reborn
 pkgver=0.1
-pkgrel=1
+pkgrel=3
 pkgdesc="Power menu widget for niri (Wayland)"
 arch=("any")
 url="https://github.com/cmachsocket/niripwmenu-reborn"
@@ -9,11 +9,11 @@ license=("MIT")
 depends=("qt6-base" "qt6-declarative")
 makedepends=("cmake" "ninja" "pkgconf")
 optdepends=("niri: for logoff command")
-source=("git+https://github.com/cmachsocket/niripwmenu-reborn.git#branch=noStyleKit")
+source=("$url/archive/refs/tags/v$pkgver.tar.gz")
 sha256sums=("SKIP")
 
 build() {
-    cmake -S niripwmenu-reborn -B build \
+    cmake -S niripwmenu-reborn-0.1 -B build \
         -G Ninja \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_INSTALL_PREFIX=/usr
